@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Examen Reposicion</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/message.css" rel="stylesheet">
+   <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="non-responsive.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="js/ie-emulation-modes-warning.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.6.8-fix/jquery.nicescroll.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    
+    
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+
+  </head>
+
+
+  <body>
+<?php
+/*
+  Cree una función almacenada de PL/SQL como:
+
+  CREATE OR REPLACE FUNCTION myfunc(p1 IN NUMBER) RETURN SYS_REFCURSOR AS
+      rc SYS_REFCURSOR;
+  BEGIN
+      OPEN rc FOR SELECT city FROM locations WHERE ROWNUM < p1;
+      RETURN rc;
+  END;
+*/
+
+$conexión = oci_connect('hr', 'welcome', 'localhost/XE');
+
+$stid = oci_parse($conexión, 'SELECT myfunc(5) AS mfrc FROM dual');
+oci_execute($stid);
+
+echo "<table border='1'>\n";
+while (($fila = oci_fetch_array($stid, OCI_ASSOC))) {
+    echo "<tr>\n";
+    $rc = $fila['MFRC'];
+    oci_execute($rc);  // el valor de la columna devuelta por la consulta es un ref cursor
+    while (($fila_rc = oci_fetch_array($rc, OCI_ASSOC))) {   
+        echo "    <td>" . $fila_rc['CITY'] . "</td>\n";
+    }
+    oci_free_statement($rc);
+    echo "</tr>\n";
+}
+echo "</table>\n";
+
+// La salida es:
+//   Beijing
+//   Bern
+//   Bombay
+//   Geneva
+
+oci_free_statement($stid);
+oci_close($conexión);
+
+?>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="js/ie10-viewport-bug-workaround.js"></script>
+  </body>
+</html>
